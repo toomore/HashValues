@@ -13,7 +13,7 @@ type HashValues struct {
 	hashkey  []byte
 }
 
-func NewHashValues(hashkey []byte, hashfunc func() hash.Hash) *HashValues {
+func New(hashkey []byte, hashfunc func() hash.Hash) *HashValues {
 	return &HashValues{
 		Values:   url.Values{},
 		hashfunc: hashfunc,

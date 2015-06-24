@@ -37,9 +37,9 @@ func (h *HashValues) Get(key string) string {
 	return h.Values.Get(key)
 }
 
-func (h *HashValues) Parse(message string) error {
+func (h *HashValues) Decode(key []byte, message string) error {
 	var err error
-	if hmac.Equal(h.hashkey, hmac.New(h.hashfunc, h.hashkey).Sum([]byte(message))) {
+	if hmac.Equal(h.hashkey, hmac.New(h.hashfunc, key).Sum([]byte(message))) {
 		h.Values, err = url.ParseQuery(message)
 	} else {
 		err = errors.New("wrong key!")

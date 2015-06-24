@@ -40,11 +40,8 @@ func (h *HashValues) Get(key string) string {
 
 func (h *HashValues) Decode(key []byte, message string) error {
 	var err error
-	var hashed = hmac.New(h.hashfunc, h.hashkey)
 
-	hashed.Write([]byte(message))
-
-	if subtle.ConstantTimeCompare(hashed.Sum(nil), key) == 1 {
+	if subtle.ConstantTimeCompare(h.createMac([]byte(message)), key) == 1 {
 		h.Values, err = url.ParseQuery(message)
 	} else {
 		err = errors.New("wrong key!")
@@ -54,9 +51,11 @@ func (h *HashValues) Decode(key []byte, message string) error {
 
 func (h *HashValues) Encode() ([]byte, string) {
 	var value = h.Values.Encode()
+	return h.createMac([]byte(value)), value
+}
 
-	hm := hmac.New(h.hashfunc, h.hashkey)
-	hm.Write([]byte(value))
-
-	return hm.Sum(nil), value
+func (h HashValues) createMac(message []byte) []byte {
+	var hashed = hmac.New(h.hashfunc, h.hashkey)
+	hashed.Write(message)
+	return hashed.Sum(nil)
 }

@@ -2,8 +2,8 @@ package hashvalues
 
 import (
 	"crypto/hmac"
+	"crypto/subtle"
 	"errors"
-	"fmt"
 	"hash"
 	"net/url"
 )
@@ -44,7 +44,7 @@ func (h *HashValues) Decode(key []byte, message string) error {
 
 	hashed.Write([]byte(message))
 
-	if fmt.Sprintf("%x", hashed.Sum(nil)) == fmt.Sprintf("%s", key) {
+	if subtle.ConstantTimeCompare(hashed.Sum(nil), key) == 1 {
 		h.Values, err = url.ParseQuery(message)
 	} else {
 		err = errors.New("wrong key!")

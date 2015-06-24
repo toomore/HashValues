@@ -6,6 +6,7 @@ package hashvalues
 import (
 	"crypto/hmac"
 	"crypto/subtle"
+	"encoding/base64"
 	"errors"
 	"hash"
 	"net/url"
@@ -51,6 +52,10 @@ func (h *HashValues) Get(key string) string {
 func (h *HashValues) Decode(key []byte, message string) error {
 	var err error
 
+	if key, err = decode(key); err != nil {
+		return err
+	}
+
 	if subtle.ConstantTimeCompare(h.createMac([]byte(message)), key) == 1 {
 		h.Values, err = url.ParseQuery(message)
 	} else {
@@ -60,9 +65,9 @@ func (h *HashValues) Decode(key []byte, message string) error {
 }
 
 // Encode to encode all data.
-func (h *HashValues) Encode() ([]byte, string) {
-	var value = h.Values.Encode()
-	return h.createMac([]byte(value)), value
+func (h *HashValues) Encode() ([]byte, []byte) {
+	var value = []byte(h.Values.Encode())
+	return encode(h.createMac(value)), encode(value)
 }
 
 // createMac to create and sum hash.
@@ -70,4 +75,21 @@ func (h HashValues) createMac(message []byte) []byte {
 	var hashed = hmac.New(h.hashfunc, h.hashkey)
 	hashed.Write(message)
 	return hashed.Sum(nil)
+}
+
+// encode encodes a value using base64.
+func encode(value []byte) []byte {
+	encoded := make([]byte, base64.URLEncoding.EncodedLen(len(value)))
+	base64.URLEncoding.Encode(encoded, value)
+	return encoded
+}
+
+// decode decodes a cookie using base64.
+func decode(value []byte) ([]byte, error) {
+	decoded := make([]byte, base64.URLEncoding.DecodedLen(len(value)))
+	b, err := base64.URLEncoding.Decode(decoded, value)
+	if err != nil {
+		return nil, err
+	}
+	return decoded[:b], nil
 }

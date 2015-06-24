@@ -40,3 +40,19 @@ func TestHashValues_Decode(t *testing.T) {
 	h.Decode(hashedKey, messageX)
 	t.Logf("X: %+v", h.Values)
 }
+
+func BenchmarkHashValues_Encode(b *testing.B) {
+	var h = New(hashkey, md5.New)
+	h.Set("name", "Toomore")
+	h.Set("age", "30")
+	for i := 0; i < b.N; i++ {
+		h.Encode()
+	}
+}
+
+func BenchmarkHashValues_Decode(b *testing.B) {
+	var h = New(hashkey, md5.New)
+	for i := 0; i < b.N; i++ {
+		h.Decode(hashedKey, messageO)
+	}
+}

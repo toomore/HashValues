@@ -1,19 +1,21 @@
 package hashvalues
 
 import (
+	"crypto/hmac"
+	"errors"
 	"hash"
 	"net/url"
 )
 
 type HashValues struct {
-	Values   *url.Values
-	hashfunc hash.Hash
+	Values   url.Values
+	hashfunc func() hash.Hash
 	hashkey  []byte
 }
 
-func NewHashValues(hashkey []byte, hashfunc hash.Hash) *HashValues {
+func NewHashValues(hashkey []byte, hashfunc func() hash.Hash) *HashValues {
 	return &HashValues{
-		Values:   &url.Values{},
+		Values:   url.Values{},
 		hashfunc: hashfunc,
 		hashkey:  hashkey,
 	}
@@ -33,4 +35,14 @@ func (h *HashValues) Del(key string) {
 
 func (h *HashValues) Get(key string) string {
 	return h.Values.Get(key)
+}
+
+func (h *HashValues) Parse(message string) error {
+	var err error
+	if hmac.Equal(h.hashkey, hmac.New(h.hashfunc, h.hashkey).Sum([]byte(message))) {
+		h.Values, err = url.ParseQuery(message)
+	} else {
+		err = errors.New("wrong key!")
+	}
+	return err
 }

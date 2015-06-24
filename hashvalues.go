@@ -46,3 +46,8 @@ func (h *HashValues) Decode(key []byte, message string) error {
 	}
 	return err
 }
+
+func (h *HashValues) Encode() ([]byte, string) {
+	var value = h.Values.Encode()
+	return hmac.New(h.hashfunc, h.hashkey).Sum([]byte(value)), value
+}

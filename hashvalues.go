@@ -3,6 +3,7 @@ package hashvalues
 import (
 	"crypto/hmac"
 	"errors"
+	"fmt"
 	"hash"
 	"net/url"
 )
@@ -39,7 +40,11 @@ func (h *HashValues) Get(key string) string {
 
 func (h *HashValues) Decode(key []byte, message string) error {
 	var err error
-	if hmac.Equal(h.hashkey, hmac.New(h.hashfunc, key).Sum([]byte(message))) {
+	var hashed = hmac.New(h.hashfunc, h.hashkey)
+
+	hashed.Write([]byte(message))
+
+	if fmt.Sprintf("%x", hashed.Sum(nil)) == fmt.Sprintf("%s", key) {
 		h.Values, err = url.ParseQuery(message)
 	} else {
 		err = errors.New("wrong key!")
@@ -49,5 +54,9 @@ func (h *HashValues) Decode(key []byte, message string) error {
 
 func (h *HashValues) Encode() ([]byte, string) {
 	var value = h.Values.Encode()
-	return hmac.New(h.hashfunc, h.hashkey).Sum([]byte(value)), value
+
+	hm := hmac.New(h.hashfunc, h.hashkey)
+	hm.Write([]byte(value))
+
+	return hm.Sum(nil), value
 }

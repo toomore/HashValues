@@ -52,7 +52,7 @@ func (h *HashValues) Get(key string) string {
 func (h *HashValues) Decode(key []byte, message string) error {
 	var err error
 
-	if key, err = decode(key); err != nil {
+	if key, err = Base64Decode(key); err != nil {
 		return err
 	}
 
@@ -67,7 +67,7 @@ func (h *HashValues) Decode(key []byte, message string) error {
 // Encode to encode all data.
 func (h *HashValues) Encode() ([]byte, []byte) {
 	var value = []byte(h.Values.Encode())
-	return encode(h.createMac(value)), encode(value)
+	return Base64Encode(h.createMac(value)), Base64Encode(value)
 }
 
 // createMac to create and sum hash.
@@ -77,15 +77,15 @@ func (h HashValues) createMac(message []byte) []byte {
 	return hashed.Sum(nil)
 }
 
-// encode encodes a value using base64.
-func encode(value []byte) []byte {
+// Base64Encode encodes a value using base64.
+func Base64Encode(value []byte) []byte {
 	encoded := make([]byte, base64.URLEncoding.EncodedLen(len(value)))
 	base64.URLEncoding.Encode(encoded, value)
 	return encoded
 }
 
-// decode decodes a cookie using base64.
-func decode(value []byte) ([]byte, error) {
+// Base64Decode decodes a cookie using base64.
+func Base64Decode(value []byte) ([]byte, error) {
 	decoded := make([]byte, base64.URLEncoding.DecodedLen(len(value)))
 	b, err := base64.URLEncoding.Decode(decoded, value)
 	if err != nil {

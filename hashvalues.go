@@ -49,15 +49,19 @@ func (h *HashValues) Get(key string) string {
 }
 
 // Decode to decode a hmac key with message.
-func (h *HashValues) Decode(key []byte, message string) error {
+func (h *HashValues) Decode(key, message []byte) error {
 	var err error
 
 	if key, err = Base64Decode(key); err != nil {
 		return err
 	}
 
-	if subtle.ConstantTimeCompare(h.createMac([]byte(message)), key) == 1 {
-		h.Values, err = url.ParseQuery(message)
+	if message, err = Base64Decode(message); err != nil {
+		return err
+	}
+
+	if subtle.ConstantTimeCompare(h.createMac(message), key) == 1 {
+		h.Values, err = url.ParseQuery(string(message))
 	} else {
 		err = errors.New("wrong key")
 	}

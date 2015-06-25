@@ -6,13 +6,12 @@ import (
 	"testing"
 )
 
-const messageO = "age=30&name=Toomore"
-const messageX = "name=Toomore&age=30"
-
 var (
 	hashedKey []byte
 	hashkey   = []byte("Toomore.net")
 	hashfunc  = sha256.New
+	messageO  = []byte("age=30&name=Toomore")
+	messageX  = []byte("name=Toomore&age=30")
 )
 
 func init() {
@@ -42,14 +41,14 @@ func TestHashValues_Encode(t *testing.T) {
 
 func TestHashValues_Decode(t *testing.T) {
 	var h = New(hashkey, hashfunc)
-	if err := h.Decode(hashedKey, messageO); err == nil {
+	if err := h.Decode(hashedKey, Base64Encode(messageO)); err == nil {
 		t.Logf("O: %+v", h.Values)
 	} else {
 		t.Log(err)
 	}
 
 	h = New(hashkey, hashfunc)
-	h.Decode(hashedKey, messageX)
+	h.Decode(hashedKey, Base64Encode(messageX))
 	t.Logf("X: %+v", h.Values)
 }
 
@@ -64,7 +63,8 @@ func BenchmarkHashValues_Encode(b *testing.B) {
 
 func BenchmarkHashValues_Decode(b *testing.B) {
 	var h = New(hashkey, hashfunc)
+	var messageObyte = Base64Encode(messageO)
 	for i := 0; i < b.N; i++ {
-		h.Decode(hashedKey, messageO)
+		h.Decode(hashedKey, messageObyte)
 	}
 }

@@ -15,8 +15,10 @@ Example - Encode
 
 ```go
 import (
-	"crypto/sha256"
-	"fmt"
+    "crypto/sha256"
+    "fmt"
+
+    "github.com/toomore/hashvalues"
 )
 
 var h = hashvalues.New([]byte("Toomore.net"), sha256.New)

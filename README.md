@@ -1,7 +1,9 @@
 toomore/hashvalues
 ===================
 
-Simple way to hash key-value data by using url.Values.
+[![GoDoc](https://godoc.org/github.com/toomore/hashvalues?status.svg)](https://godoc.org/github.com/toomore/hashvalues)
+
+Simple way to hash key-value data by using [url.Values](https://golang.org/pkg/net/url/#Values).
 
 Install
 --------
@@ -22,9 +24,11 @@ h.Set("name", "Toomore")
 h.Set("age", "30")
 key, msg := h.Encode()
 fmt.Printf("Key:[%s] Msg:[%s]", key, msg)
-// output:
-// Key:[aTMzslluGEzE-uNMoLtBC2vN6aDYGc8fIXJFi_oXPG4=] Msg:[YWdlPTMwJm5hbWU9VG9vbW9yZQ==]
 ```
+
+output:
+
+    Key:[aTMzslluGEzE-uNMoLtBC2vN6aDYGc8fIXJFi_oXPG4=] Msg:[YWdlPTMwJm5hbWU9VG9vbW9yZQ==]
 
 Example - Decode
 -----------------
